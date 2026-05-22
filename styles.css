@@ -1,12 +1,14 @@
 /* beautiful. — eleganter, lebendiger Single-Product-Shop.
-   Weißer Grund, viel Weißraum, das Rot der Karte als einziger Akzent —
-   dazu treibende Sprenkel, ein typografischer Hero und sanfte Bewegung. */
+   Weißer Grund, viel Weißraum, das Rot der Karte als einziger Akzent.
+   Dazu: eigener Cursor, magnetische Elemente, Hero buchstabenweise,
+   Karten-Glanz, Laufschrift, invertierter Schluss, Körnung, Parallax. */
 
 :root {
   --color-bg: #ffffff;
   --color-ink: #1a1a1a;
   --color-muted: #8a8a8a;
   --color-accent: #e5362c; /* Rot der Karte */
+  --color-accent-dark: #c22a22;
   --maxw: 1100px;
   --gutter: clamp(1.25rem, 4vw, 3rem);
   --serif: "Fraunces", Georgia, "Times New Roman", serif;
@@ -52,8 +54,68 @@ a {
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* ── Film-Körnung ────────────────────────────────────── */
+.grain {
+  position: fixed;
+  inset: -50%;
   z-index: -1;
   pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  animation: grain 8s steps(8) infinite;
+}
+
+/* ── Eigener Cursor ──────────────────────────────────── */
+.cursor,
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cursor {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1.5px solid var(--color-accent);
+  transition: opacity 0.3s ease, width 0.25s ease, height 0.25s ease,
+    margin 0.25s ease, background-color 0.25s ease;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--color-accent);
+}
+
+body.has-cursor .cursor,
+body.has-cursor .cursor-dot {
+  opacity: 1;
+}
+
+body.has-cursor .cursor.is-hover {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  background: rgba(229, 54, 44, 0.08);
+}
+
+body.has-cursor a,
+body.has-cursor button,
+body.has-cursor [data-magnetic],
+body.has-cursor .product-image {
+  cursor: none;
 }
 
 /* ── Header ──────────────────────────────────────────── */
@@ -129,8 +191,22 @@ a {
 }
 
 .hero-word {
+  display: inline-flex;
+}
+
+/* einzelne Buchstaben (per JS erzeugt) */
+.hero-word .char {
   display: inline-block;
-  animation: rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  transform: translateY(1.1em);
+  opacity: 0;
+  animation: charRise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  transition: font-variation-settings 0.3s ease, transform 0.3s ease;
+  will-change: transform;
+}
+
+.hero-word .char:hover {
+  font-variation-settings: "wght" 600;
+  transform: translateY(-0.06em);
 }
 
 .hero-tagline {
@@ -140,7 +216,7 @@ a {
   font-size: clamp(1rem, 2.4vw, 1.5rem);
   color: var(--color-accent);
   opacity: 0;
-  animation: fade 1s ease 0.5s forwards;
+  animation: fade 1s ease 0.9s forwards;
 }
 
 .hero-scroll {
@@ -155,11 +231,37 @@ a {
   text-transform: uppercase;
   color: var(--color-muted);
   opacity: 0;
-  animation: fade 1s ease 1s forwards;
+  animation: fade 1s ease 1.3s forwards;
 }
 
 .hero-arrow {
   animation: bob 1.8s ease-in-out infinite;
+}
+
+/* ── Laufschrift ─────────────────────────────────────── */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid #ededed;
+  border-bottom: 1px solid #ededed;
+  padding: 1rem 0;
+}
+
+.marquee-track {
+  display: inline-flex;
+  animation: marquee 28s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-track span {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  color: var(--color-accent);
+  padding-right: 1rem;
 }
 
 /* ── Produkt ─────────────────────────────────────────── */
@@ -174,8 +276,10 @@ a {
 }
 
 .product-image {
+  position: relative;
   margin: 0;
   perspective: 1000px;
+  overflow: hidden;
 }
 
 .product-image img {
@@ -188,6 +292,25 @@ a {
 
 .product-image:hover img {
   box-shadow: 0 40px 80px -30px rgba(229, 54, 44, 0.35);
+}
+
+/* Glanz/Reflex, der dem Cursor folgt (per JS positioniert) */
+.glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0) 45%
+  );
+  mix-blend-mode: soft-light;
+}
+
+.product-image:hover .glare {
+  opacity: 1;
 }
 
 .product-info {
@@ -224,23 +347,27 @@ a {
   min-height: 56px; /* verhindert Layout-Sprung beim Laden */
 }
 
-/* ── Schlusszeile ────────────────────────────────────── */
+/* ── Schlusszeile (invertiert) ───────────────────────── */
 .closing {
+  position: relative;
   text-align: center;
-  padding: clamp(4rem, 16vw, 12rem) var(--gutter);
+  padding: clamp(5rem, 18vw, 14rem) var(--gutter);
+  background: var(--color-accent);
+  color: #fff;
+  overflow: hidden;
 }
 
 .closing-line {
   margin: 0;
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(2rem, 7vw, 5rem);
-  line-height: 1.1;
-  color: var(--color-ink);
+  font-size: clamp(2.25rem, 8vw, 6rem);
+  line-height: 1.05;
 }
 
 .closing-line em {
-  color: var(--color-accent);
+  font-style: italic;
+  color: #ffe9e7;
 }
 
 /* ── Footer ──────────────────────────────────────────── */
@@ -270,9 +397,8 @@ a {
 }
 
 /* ── Keyframes ───────────────────────────────────────── */
-@keyframes rise {
-  from { opacity: 0; transform: translateY(0.25em); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes charRise {
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade {
@@ -282,6 +408,21 @@ a {
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(5px); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes grain {
+  0%   { transform: translate(0, 0); }
+  10%  { transform: translate(-5%, -10%); }
+  30%  { transform: translate(3%, -15%); }
+  50%  { transform: translate(-7%, 5%); }
+  70%  { transform: translate(5%, 10%); }
+  90%  { transform: translate(-3%, 8%); }
+  100% { transform: translate(0, 0); }
 }
 
 /* ── Mobile ──────────────────────────────────────────── */
@@ -303,4 +444,6 @@ a {
   }
   .reveal { opacity: 1; transform: none; }
   .hero-tagline, .hero-scroll { opacity: 1; }
+  .hero-word .char { opacity: 1; transform: none; }
+  .grain { display: none; }
 }

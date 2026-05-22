@@ -7,17 +7,22 @@
   <meta name="description" content="Eine schöne Karte. Nimm sie und gib sie jemandem, der sie verdient." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <!-- Treibende rote Sprenkel über die ganze Seite, wie auf der Karte -->
   <canvas id="speckles" aria-hidden="true"></canvas>
+  <!-- Feine Film-Körnung -->
+  <div class="grain" aria-hidden="true"></div>
+  <!-- Eigener Cursor (nur Maus-Geräte) -->
+  <div class="cursor" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
 
   <header class="site-header">
-    <a class="wordmark" href="#top">beautiful.</a>
+    <a class="wordmark" href="#top" data-magnetic>beautiful.</a>
     <nav class="site-nav">
-      <a class="nav-link" href="#kaufen">Kaufen</a>
+      <a class="nav-link" href="#kaufen" data-magnetic>Kaufen</a>
       <!-- Shopify hängt den Warenkorb hier an -->
       <div id="shopify-cart"></div>
     </nav>
@@ -27,7 +32,7 @@
     <!-- ── Hero ──────────────────────────────────────── -->
     <section class="hero">
       <h1 class="hero-title">
-        <span class="hero-word">beautiful.</span>
+        <span class="hero-word" data-split aria-label="beautiful.">beautiful.</span>
       </h1>
       <p class="hero-tagline">take this and give it to somebody who deserves it</p>
       <a class="hero-scroll" href="#kaufen" aria-label="Weiter zum Produkt">
@@ -36,10 +41,19 @@
       </a>
     </section>
 
+    <!-- ── Laufschrift ───────────────────────────────── -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>beautiful.&nbsp;&nbsp;✶&nbsp;&nbsp;take this and give it to somebody who deserves it&nbsp;&nbsp;✶&nbsp;&nbsp;</span>
+        <span>beautiful.&nbsp;&nbsp;✶&nbsp;&nbsp;take this and give it to somebody who deserves it&nbsp;&nbsp;✶&nbsp;&nbsp;</span>
+      </div>
+    </div>
+
     <!-- ── Produkt / Kauf ────────────────────────────── -->
     <section class="product" id="kaufen">
       <figure class="product-image reveal" data-tilt>
         <img src="card.png" alt="Die Karte: das Wort „beautiful.“ in roter Serifenschrift auf weißem, gesprenkeltem Grund" />
+        <span class="glare" aria-hidden="true"></span>
       </figure>
 
       <div class="product-info">
@@ -51,11 +65,11 @@
         </div>
 
         <!-- Shopify Buy Button: Preis + Knopf, sobald die Zugangsdaten unten gesetzt sind -->
-        <div id="shopify-buy-button" class="reveal"></div>
+        <div id="shopify-buy-button" class="reveal" data-magnetic></div>
       </div>
     </section>
 
-    <!-- ── Schlusszeile ──────────────────────────────── -->
+    <!-- ── Schlusszeile (invertiert) ─────────────────── -->
     <section class="closing">
       <p class="closing-line reveal">Für jemanden,<br /><em>der sie verdient.</em></p>
     </section>
