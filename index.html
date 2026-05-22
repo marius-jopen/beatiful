@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>beautiful. — eine Karte für jemanden, der sie verdient</title>
+  <meta name="description" content="Eine schöne Karte. Nimm sie und gib sie jemandem, der sie verdient." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Treibende rote Sprenkel über die ganze Seite, wie auf der Karte -->
+  <canvas id="speckles" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <a class="wordmark" href="#top">beautiful.</a>
+    <nav class="site-nav">
+      <a class="nav-link" href="#kaufen">Kaufen</a>
+      <!-- Shopify hängt den Warenkorb hier an -->
+      <div id="shopify-cart"></div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- ── Hero ──────────────────────────────────────── -->
+    <section class="hero">
+      <h1 class="hero-title">
+        <span class="hero-word">beautiful.</span>
+      </h1>
+      <p class="hero-tagline">take this and give it to somebody who deserves it</p>
+      <a class="hero-scroll" href="#kaufen" aria-label="Weiter zum Produkt">
+        <span>scroll</span>
+        <span class="hero-arrow">↓</span>
+      </a>
+    </section>
+
+    <!-- ── Produkt / Kauf ────────────────────────────── -->
+    <section class="product" id="kaufen">
+      <figure class="product-image reveal" data-tilt>
+        <img src="card.png" alt="Die Karte: das Wort „beautiful.“ in roter Serifenschrift auf weißem, gesprenkeltem Grund" />
+      </figure>
+
+      <div class="product-info">
+        <p class="eyebrow reveal">Eine Karte</p>
+        <h2 class="product-title reveal">beautiful.</h2>
+        <div class="product-description reveal">
+          <p>Roter Druck auf weißem Papier. Mehr nicht — und genau richtig.</p>
+          <p>Nimm sie und gib sie jemandem, der sie verdient.</p>
+        </div>
+
+        <!-- Shopify Buy Button: Preis + Knopf, sobald die Zugangsdaten unten gesetzt sind -->
+        <div id="shopify-buy-button" class="reveal"></div>
+      </div>
+    </section>
+
+    <!-- ── Schlusszeile ──────────────────────────────── -->
+    <section class="closing">
+      <p class="closing-line reveal">Für jemanden,<br /><em>der sie verdient.</em></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>beautiful. — © <span id="year"></span></p>
+  </footer>
+
+  <script src="main.js"></script>
+
+  <!--
+    ───────────────────────────────────────────────────────────────
+    SHOPIFY BUY BUTTON
+    Drei Werte aus dem Shopify-Admin eintragen, dann funktioniert der Kauf:
+
+      1. SHOPIFY_DOMAIN            z. B. 'dein-shop.myshopify.com'
+      2. SHOPIFY_STOREFRONT_TOKEN  Apps → Buy Button (Storefront API Access Token)
+      3. SHOPIFY_PRODUCT_ID        ID des Produkts „beautiful.“
+
+    Bis diese gesetzt sind, bleibt der Kaufen-Bereich leer.
+    ───────────────────────────────────────────────────────────────
+  -->
+  <script>
+    const SHOPIFY_DOMAIN = 'DEIN-SHOP.myshopify.com';
+    const SHOPIFY_STOREFRONT_TOKEN = 'DEIN_STOREFRONT_ACCESS_TOKEN';
+    const SHOPIFY_PRODUCT_ID = 'DEINE_PRODUKT_ID';
+
+    (function () {
+      var scriptURL = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
+      if (window.ShopifyBuy && window.ShopifyBuy.UI) {
+        initShopify();
+      } else {
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = scriptURL;
+        script.onload = initShopify;
+        document.head.appendChild(script);
+      }
+
+      function initShopify() {
+        var client = ShopifyBuy.buildClient({
+          domain: SHOPIFY_DOMAIN,
+          storefrontAccessToken: SHOPIFY_STOREFRONT_TOKEN,
+        });
+
+        ShopifyBuy.UI.onReady(client).then(function (ui) {
+          ui.createComponent('product', {
+            id: SHOPIFY_PRODUCT_ID,
+            node: document.getElementById('shopify-buy-button'),
+            moneyFormat: '%E2%82%AC%7B%7Bamount_with_comma_separator%7D%7D',
+            options: {
+              product: {
+                iframe: false,
+                contents: { img: false, title: false, price: true },
+                text: { button: 'In den Warenkorb' },
+                styles: {
+                  button: {
+                    'background-color': '#e5362c',
+                    'border-radius': '0',
+                    'font-family': 'inherit',
+                    'font-size': '15px',
+                    'letter-spacing': '0.02em',
+                    'padding': '15px 30px',
+                    'transition': 'transform 0.15s ease, background-color 0.2s ease',
+                    ':hover': { 'background-color': '#c22a22', 'transform': 'translateY(-2px)' },
+                    ':focus': { 'background-color': '#c22a22' },
+                  },
+                  price: { 'font-size': '22px', 'color': '#1a1a1a' },
+                },
+              },
+              cart: {
+                text: { title: 'Warenkorb', total: 'Zwischensumme', button: 'Zur Kasse' },
+                styles: {
+                  button: {
+                    'background-color': '#e5362c',
+                    'border-radius': '0',
+                    ':hover': { 'background-color': '#c22a22' },
+                    ':focus': { 'background-color': '#c22a22' },
+                  },
+                },
+              },
+              toggle: {
+                node: document.getElementById('shopify-cart'),
+                contents: { title: false, icon: true, count: true },
+                styles: {
+                  toggle: {
+                    'background-color': 'transparent',
+                    'color': '#1a1a1a',
+                    ':hover': { 'background-color': 'transparent', 'color': '#e5362c' },
+                  },
+                  count: { 'color': '#1a1a1a' },
+                },
+              },
+            },
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
